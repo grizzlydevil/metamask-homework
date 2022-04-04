@@ -18,11 +18,14 @@ and frontend folder for react files
 
 5. go to rest_metamask folder migrate and runserver
 > cd rest_metamask
+
 > python manage.py migrate
+
 > python manage.py runserver
 
 6. go to frontend folder and start react
 > cd ../frontend
+
 > npm start
 
 7. go to http://localhost:3000/ in your browser with metamask extension.
