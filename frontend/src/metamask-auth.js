@@ -87,7 +87,7 @@ function LogIn({ setToken }) {
     e.preventDefault();
     let email = e.target.email.value;
     let password = e.target.password.value;
-    let password2 = e.target.password2.value;
+    let password2 = e.target.password2 ? e.target.password2.value : "";
 
     let headers = {"Content-Type": "application/json"};
     let body = e.target.id === "login" ? JSON.stringify({email, password}) : JSON.stringify({email, "password1": password, password2});
