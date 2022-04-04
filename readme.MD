@@ -3,6 +3,7 @@ I am using linux commands, use appropriate to your OS
 
 1. clone the repository into a new folder:
 > git clone https://github.com/grizzlydevil/metamask-homework.git
+
 rest_metamask folder is for backend
 and frontend folder for react files
 
