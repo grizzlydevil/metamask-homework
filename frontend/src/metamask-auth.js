@@ -27,9 +27,16 @@ async function checkIfWalletIsConnected(onConnected) {
   }
 }
 
-async function isUserAuthenticated(setUserAuthenticated) {
+async function isUserAuthenticated(setUserAuthenticated, token) {
   try {
-    const response = await fetch('http://127.0.0.1:8000/auth/is_authenticated');
+    let headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Token ${token}`;
+    }
+
+    const response = await fetch('http://127.0.0.1:8000/auth/is_authenticated', {headers, method: "GET"});
     const sourceResponse = await response.json();
     setUserAuthenticated(sourceResponse.auth ? true : false)
     return;
@@ -42,10 +49,7 @@ async function isUserAuthenticated(setUserAuthenticated) {
 export default function MetaMaskAuth({ onAddressChanged }) {
   const [userAddress, setUserAddress] = useState("");
   const [userAuthenticated, setUserAuthenticated] = useState("");
-
-  useEffect(() => {
-    isUserAuthenticated(setUserAuthenticated);
-  }, []);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     checkIfWalletIsConnected(setUserAddress);
@@ -55,9 +59,13 @@ export default function MetaMaskAuth({ onAddressChanged }) {
     onAddressChanged(userAddress);
   }, [userAddress]);
 
+  useEffect(() => {
+    isUserAuthenticated(setUserAuthenticated, token);
+  }, [token]);
+
   if (!userAuthenticated) {
     return (
-      <p>User is not authenticated</p>
+      <LogIn setToken={setToken}/>
     )
   }
 
@@ -72,6 +80,74 @@ export default function MetaMaskAuth({ onAddressChanged }) {
 }
 
 
+function LogIn({ setToken }) {
+  const [userLoggedIn, setuserLoggedIn] = useState(false);
+
+  let submitLogIn = e => {
+    e.preventDefault();
+    let email = e.target.email.value;
+    let password = e.target.password.value;
+    let password2 = e.target.password2.value;
+
+    let headers = {"Content-Type": "application/json"};
+    let body = e.target.id === "login" ? JSON.stringify({email, password}) : JSON.stringify({email, "password1": password, password2});
+    let url = e.target.id === "login" ? "http://127.0.0.1:8000/auth/login/" : "http://127.0.0.1:8000/auth/registration/";
+
+    fetch(url, {headers, body, method: "POST"})
+      .then(async response => {
+        const data = await response.json();
+        if (data && data.key) {
+          setToken(data.key);
+          setuserLoggedIn(true);
+        }
+      });
+  }
+
+  if (userLoggedIn) {
+    return;
+  }
+
+  return (
+    <div><form onSubmit={submitLogIn} id="login">
+      <fieldset>
+        <legend>Log in to backend</legend>
+        <p>
+          <label htmlFor="email">Email: </label>
+          <input type="text" id="email"/>
+        </p>
+        <p>
+          <label htmlFor="password">Password: </label>
+          <input type="password" id="password"/>
+        </p>
+        <p>
+          <button type="submit">Log In</button>
+        </p>
+      </fieldset>
+    </form>
+    <form onSubmit={submitLogIn} id="create">
+      <fieldset>
+        <legend>Create new account</legend>
+        <p>
+          <label htmlFor="email">Email: </label>
+          <input type="text" id="email"/>
+        </p>
+        <p>
+          <label htmlFor="password">Password: </label>
+          <input type="password" id="password"/>
+        </p>
+        <p>
+          <label htmlFor="password2">Repeat Password: </label>
+          <input type="password" id="password2"/>
+        </p>
+        <p>
+          <button type="submit">Create</button>
+        </p>
+      </fieldset>
+    </form></div>
+  );
+}
+
+
 function Connect({ setUserAddress }) {
   return (
     <button onClick={() => connect(setUserAddress)}>
@@ -83,6 +159,6 @@ function Connect({ setUserAddress }) {
 
 function Address({ userAddress }) {
   return (
-    <span>{userAddress.substring(0, 5)}…{userAddress.substring(userAddress.length - 4)}</span>
+    <span>{userAddress}</span>
   );
 }
