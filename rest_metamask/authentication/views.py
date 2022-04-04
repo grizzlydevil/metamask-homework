@@ -8,6 +8,5 @@ class IsUserAuthenticated(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
-
     def get(self, request, format=None):
         return Response({'auth': True})
