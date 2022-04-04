@@ -58,7 +58,10 @@ SITE_ID = 1  # this is needed for dj-rest-auth user regitration views
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
 }
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
